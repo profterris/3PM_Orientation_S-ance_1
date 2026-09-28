@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon profil 3e prépa-métiers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* layout : une colonne type carnet de bord, barre de progression collante, 8 étapes dans l'ordre de la séance */
+:root{
+  --bg:#f3f5f9; --paper:#ffffff; --ink:#15213a; --dim:#5b6680; --line:#d9deea;
+  --accent:#2f5bea; --accent-ink:#ffffff; --mark:#ffd84d; --mark-ink:#15213a;
+  --ok:#1f8a4c; --soft:#e8eefe;
+  --p1:#e0672b; --p2:#2f5bea; --p3:#b43fb8; --p4:#1f8a4c; --p5:#d4a000; --p6:#4b5b78;
+  --f-display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1524; --paper:#18203a; --ink:#e8ecf6; --dim:#9aa6c2; --line:#2c3657;
+  --accent:#7b9cff; --accent-ink:#0f1524; --mark:#ffd84d; --mark-ink:#15213a;
+  --ok:#4fd08a; --soft:#222d52;
+  --p1:#ff8f58; --p2:#7b9cff; --p3:#e07ae4; --p4:#4fd08a; --p5:#f1c232; --p6:#9fb0d0;
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f1524; --paper:#18203a; --ink:#e8ecf6; --dim:#9aa6c2; --line:#2c3657;
+  --accent:#7b9cff; --accent-ink:#0f1524; --mark:#ffd84d; --mark-ink:#15213a;
+  --ok:#4fd08a; --soft:#222d52;
+  --p1:#ff8f58; --p2:#7b9cff; --p3:#e07ae4; --p4:#4fd08a; --p5:#f1c232; --p6:#9fb0d0;
+  color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0;padding-inline:16px;padding-block:0 60px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(30px,6vw,46px);font-weight:800}
+h2{font-size:clamp(22px,4vw,28px);font-weight:800}
+h3{font-size:18px;font-weight:600}
+p{margin:0}
+.hl{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+header{padding-top:36px;display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.lead{color:var(--dim);max-width:60ch}
+.who{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=text],textarea,input[type=number]{font:inherit;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,label:focus-within{outline:3px solid var(--accent);outline-offset:2px}
+textarea{width:100%;min-height:70px;resize:vertical}
+
+.progress{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.progress b{font-variant-numeric:tabular-nums;font-size:14px;min-width:92px;text-align:right}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+section.step{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:22px 20px;display:flex;flex-direction:column;gap:16px}
+.step-head{display:flex;gap:14px;align-items:flex-start}
+.num{flex-shrink:0;width:40px;height:40px;border-radius:50%;background:var(--ink);color:var(--paper);font-family:var(--f-display);font-weight:800;display:grid;place-items:center;font-size:18px}
+.step-head div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.hint{font-size:15px;color:var(--dim)}
+
+/* ceci ou cela */
+.pairs{display:grid;gap:10px}
+.pair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.pair .ou{align-self:center;font-size:13px;color:var(--dim);font-weight:700}
+.choice{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left}
+.choice:hover{border-color:var(--accent)}
+.choice.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+
+/* échelles */
+.scale{display:flex;flex-direction:column;gap:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .lbl{min-width:0}
+.row .lbl small{display:block;color:var(--dim);font-size:13px}
+.seg{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.seg button{font:inherit;font-size:13px;padding:6px 10px;border-radius:99px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
+@media (max-width:560px){.row{grid-template-columns:1fr}.seg{justify-content:flex-start}.pair{grid-template-columns:1fr}.pair .ou{justify-self:center}}
+
+/* intérêts */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;padding:8px 14px;border-radius:99px;border:2px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chip.on{background:var(--mark);border-color:var(--mark);color:var(--mark-ink);font-weight:700}
+.counter{font-size:14px;color:var(--dim)}
+
+/* envies */
+.q{display:flex;flex-direction:column;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border-bottom:0}
+.q .opts{display:flex;flex-wrap:wrap;gap:6px}
+
+/* profil */
+.bars{display:flex;flex-direction:column;gap:12px}
+.pb{display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:4px 10px;align-items:center}
+.pb .name{font-size:15px;font-weight:700;grid-column:1/-1}
+.pb .track{height:16px;background:var(--bg);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.pb .fill{height:100%;border-radius:99px;transition:width .4s}
+.pb .pct{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+.verdict{background:var(--soft);border-radius:10px;padding:14px 16px}
+.empty{color:var(--dim);font-style:italic}
+
+/* onisep */
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:700;padding:12px 18px;border-radius:10px;align-self:flex-start}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:540px;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:middle}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim)}
+td input{width:74px;padding:6px 8px;font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:15px}
+.note{font-size:14px;color:var(--dim);border-left:4px solid var(--mark);padding-left:10px}
+
+/* récap */
+pre#recap{white-space:pre-wrap;word-wrap:break-word;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px;font-family:var(--f-body);font-size:14px;margin:0;max-height:420px;overflow:auto}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{font:inherit;font-weight:700;padding:10px 16px;border-radius:10px;border:2px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.toast{font-size:14px;color:var(--ok);font-weight:700}
+footer{font-size:13px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">3e prépa-métiers · séance 1 · connaissance de soi</span>
+    <h1>Qui je suis, <span class="hl">pour de vrai</span></h1>
+    <p class="lead">Pas de bonne ni de mauvaise réponse. Personne ne te note. Tu réponds vite, à l'instinct : c'est ta première idée qui compte. À la fin, tu obtiens ton profil et tu le compares au quiz de l'Onisep.</p>
+    <div class="who">
+      <label for="prenom"><b>Ton prénom :</b></label>
+      <input type="text" id="prenom" placeholder="Prénom" autocomplete="off">
+    </div>
+  </header>
+
+  <div class="progress" aria-live="polite">
+    <div class="bar"><i id="barFill"></i></div>
+    <b id="barTxt">0 réponse</b>
+  </div>
+
+  <!-- 1 -->
+  <section class="step" id="s1">
+    <div class="step-head"><span class="num">1</span><div>
+      <h2>Ceci ou cela</h2>
+      <p class="hint">12 duels. Clique sur ce qui te ressemble le plus, même si c'est serré.</p></div></div>
+    <div class="pairs" id="pairs"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="step" id="s2">
+    <div class="step-head"><span class="num">2</span><div>
+      <h2>Mes traits de personnalité</h2>
+      <p class="hint">Ce que les autres diraient de toi. Réponds pour toi, pas pour faire plaisir.</p></div></div>
+    <div class="scale" id="traits"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="step" id="s3">
+    <div class="step-head"><span class="num">3</span><div>
+      <h2>Mes aptitudes</h2>
+      <p class="hint">Ce que tu sais déjà faire, à l'école, à la maison, au sport, avec tes potes. Ça compte aussi hors de la classe.</p></div></div>
+    <div class="scale" id="aptitudes"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="step" id="s4">
+    <div class="step-head"><span class="num">4</span><div>
+      <h2>Mes centres d'intérêt</h2>
+      <p class="hint">Clique sur tout ce que tu aimerais faire une journée entière sans t'ennuyer. Choisis-en au moins 4.</p></div></div>
+    <div class="chips" id="interets"></div>
+    <p class="counter" id="intCount">0 activité choisie</p>
+  </section>
+
+  <!-- 5 -->
+  <section class="step" id="s5">
+    <div class="step-head"><span class="num">5</span><div>
+      <h2>Mes envies pour plus tard</h2>
+      <p class="hint">Ton futur boulot, tu le vois comment ?</p></div></div>
+    <div id="envies"></div>
+  </section>
+
+  <!-- 6 -->
+  <section class="step" id="s6">
+    <div class="step-head"><span class="num">6</span><div>
+      <h2>Mon profil maison</h2>
+      <p class="hint">Calculé à partir de tes réponses 1 à 5. Il se met à jour tout seul.</p></div></div>
+    <div class="bars" id="bars"></div>
+    <div class="verdict" id="verdict"><p class="empty">Réponds aux étapes précédentes pour voir apparaître ton profil.</p></div>
+    <div class="field">
+      <label for="accord">Ce résultat te ressemble ?</label>
+      <div class="opts seg" id="accord" style="justify-content:flex-start"></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="step" id="s7">
+    <div class="step-head"><span class="num">7</span><div>
+      <h2>Le quiz de l'Onisep</h2>
+      <p class="hint">Fais le quiz officiel, télécharge ton PDF de résultats, puis reporte tes pourcentages ici.</p></div></div>
+    <a class="cta" href="https://explorer-avenirs.onisep.fr/metier/les-quiz-de-l-onisep/quiz-quels-univers-professionnels-selon-ma-personnalite" target="_blank" rel="noopener">Ouvrir le quiz Onisep ↗</a>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Pôle</th><th>% conseillés</th><th>% assez pertinents</th><th>% peu pertinents</th></tr></thead>
+        <tbody id="onisepTbl"></tbody>
+      </table>
+    </div>
+    <p class="note">Pour le pôle avec le score le plus haut : clique sur le secteur dans tes résultats Onisep, puis sur « Mes réponses », et recopie-les.</p>
+    <div class="grid2">
+      <div class="field"><label for="on_traits">Mes traits de personnalité</label><textarea id="on_traits"></textarea></div>
+      <div class="field"><label for="on_apt">Mes aptitudes</label><textarea id="on_apt"></textarea></div>
+      <div class="field"><label for="on_int">Mes centres d'intérêt</label><textarea id="on_int"></textarea></div>
+      <div class="field"><label for="on_env">Mes envies</label><textarea id="on_env"></textarea></div>
+    </div>
+    <div class="verdict" id="compare"><p class="empty">Remplis la colonne « % conseillés » pour comparer avec ton profil maison.</p></div>
+  </section>
+
+  <!-- 8 -->
+  <section class="step" id="s8">
+    <div class="step-head"><span class="num">8</span><div>
+      <h2>Bilan</h2>
+      <p class="hint">Dernières questions. Ensuite tu copies ton récap et tu l'envoies à ton prof.</p></div></div>
+    <div id="bilan"></div>
+    <div class="field"><label for="retiens">En une phrase : ce que je retiens sur moi aujourd'hui</label><textarea id="retiens" placeholder="Je me rends compte que…"></textarea></div>
+    <div class="field"><label for="metier">Un métier ou un secteur qui me donne envie d'aller voir de plus près</label><input type="text" id="metier" placeholder="Ex. : mécanique auto, coiffure, logistique…"></div>
+  </section>
+
+  <section class="step" id="s9">
+    <div class="step-head"><span class="num">✓</span><div>
+      <h2>Mon récap</h2>
+      <p class="hint">Copie ce texte et colle-le dans l'ENT ou dans un message à ton prof. Rien à imprimer.</p></div></div>
+    <pre id="recap"></pre>
+    <div class="btns">
+      <button class="btn" id="copyBtn" type="button">Copier mon récap</button>
+      <button class="btn ghost" id="resetBtn" type="button">Tout effacer</button>
+      <span class="toast" id="toast" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <footer>D'après l'activité Onisep n° 34571 « Se connaître et déterminer son profil en 3e prépa-métiers ». Un quiz n'est pas un test psychologique : tes réponses peuvent changer avec le temps.</footer>
+</div>
+
+<script>
+const POLES=[
+ {id:'p1',name:'Produire – construire – réparer – contrôler',short:'fabriquer, réparer',ex:'mécanique, bâtiment, électricité, industrie, agriculture, cuisine'},
+ {id:'p2',name:'Chercher – développer',short:'chercher, comprendre',ex:'informatique, laboratoire, environnement, technique'},
+ {id:'p3',name:'Créer – communiquer',short:'créer, montrer',ex:'graphisme, photo, vidéo, mode, coiffure-esthétique, artisanat d\'art'},
+ {id:'p4',name:'Soigner – aider – animer – former',short:'aider les autres',ex:'santé, petite enfance, sport, animation, social'},
+ {id:'p5',name:'Vendre – entreprendre – organiser',short:'vendre, organiser',ex:'commerce, vente, logistique, hôtellerie, transport'},
+ {id:'p6',name:'Gérer – administrer – défendre – surveiller',short:'gérer, protéger',ex:'sécurité, armée, gendarmerie, secrétariat, comptabilité'}
+];
+const PAIRS=[
+ ['Démonter un objet pour voir comment il marche','p1','Dessiner ou customiser un objet','p3'],
+ ['Travailler dehors, par tous les temps','p1','Travailler au chaud, dans un bureau','p6'],
+ ['Convaincre quelqu\'un d\'acheter','p5','Expliquer à quelqu\'un comment faire','p4'],
+ ['Trouver la panne d\'un ordi','p2','Réparer un scooter','p1'],
+ ['Être avec des enfants ou des personnes âgées','p4','Être avec des clients dans un magasin','p5'],
+ ['Faire respecter les règles','p6','Inventer de nouvelles idées','p3'],
+ ['Suivre une recette ou un plan à la lettre','p1','Improviser selon l\'inspiration','p3'],
+ ['Ranger, classer, que tout soit carré','p6','Chercher pourquoi un truc bizarre arrive','p2'],
+ ['Gérer une équipe pour un événement','p5','Soigner un animal ou une personne blessée','p4'],
+ ['Filmer et monter une vidéo','p3','Tester un jeu vidéo pour trouver les bugs','p2'],
+ ['Surveiller un lieu la nuit','p6','Livrer des colis toute la journée','p5'],
+ ['Coacher une équipe de sport','p4','Construire un meuble ou un mur','p1']
+];
+const TRAITS=[
+ ['Manuel·le','j\'aime faire avec mes mains',{p1:2}],
+ ['Curieux·se','je pose plein de questions',{p2:2}],
+ ['Créatif·ve','j\'ai souvent des idées originales',{p3:2}],
+ ['À l\'écoute','les gens me racontent leurs problèmes',{p4:2}],
+ ['Tchatcheur·se','je parle facilement à des inconnus',{p5:2}],
+ ['Organisé·e','mes affaires sont rangées, je planifie',{p6:2}],
+ ['Patient·e','je ne lâche pas un truc difficile',{p1:1,p2:1}],
+ ['Calme','je garde mon sang-froid',{p6:1,p4:1}],
+ ['Débrouillard·e','je trouve toujours une solution',{p1:1,p5:1}],
+ ['Sportif·ve','j\'ai besoin de bouger',{p4:1,p6:1}],
+ ['Leader','les autres me suivent',{p5:2}],
+ ['Minutieux·se','je fais attention aux détails',{p3:1,p2:1}]
+];
+const APTS=[
+ ['Utiliser des outils (tournevis, perceuse, pinceau…)',{p1:1}],
+ ['Me servir d\'un ordi, d\'un logiciel, d\'une appli',{p2:1}],
+ ['Dessiner, décorer, prendre de belles photos',{p3:1}],
+ ['M\'occuper des plus petits ou de quelqu\'un de malade',{p4:1}],
+ ['Négocier, marchander, convaincre',{p5:1}],
+ ['Compter, calculer vite de tête',{p6:1,p5:0.5}],
+ ['Cuisiner un vrai repas',{p1:1}],
+ ['Expliquer une règle de jeu aux autres',{p4:1}],
+ ['Réparer un vélo, un scooter, un objet cassé',{p1:1}],
+ ['Respecter des consignes de sécurité',{p6:1}]
+];
+const INTS=[
+ ['Bricoler, réparer','p1'],['Cuisiner, pâtisser','p1'],['Conduire des engins','p1'],['Jardiner, travailler avec les animaux','p1'],
+ ['Coder, bidouiller un PC','p2'],['Faire des expériences','p2'],['Comprendre comment marche la nature','p2'],
+ ['Faire des vidéos, TikTok, montage','p3'],['Coiffer, maquiller, relooker','p3'],['Faire de la musique, du graff','p3'],['Créer des vêtements, des sneakers custom','p3'],
+ ['Entraîner des jeunes au sport','p4'],['Aider des personnes en difficulté','p4'],['Garder des enfants','p4'],
+ ['Revendre des objets en ligne','p5'],['Conseiller des clients','p5'],['Organiser une fête ou un tournoi','p5'],
+ ['Porter un uniforme, protéger','p6'],['Tenir des comptes, gérer un budget','p6'],['Surveiller, contrôler un lieu','p6']
+];
+const ENVIES=[
+ ['Où ?',['Dehors','En atelier','En magasin','En bureau','Ça bouge tout le temps'],{0:'p1',1:'p1',2:'p5',3:'p6',4:'p4'}],
+ ['Avec qui ?',['Seul·e','En petite équipe','Avec du public tous les jours']],
+ ['Ton corps au travail ?',['Physique, je me dépense','Un peu des deux','Assis·e, tranquille']],
+ ['Les horaires ?',['Fixes, en journée','Décalés (nuit, week-end), ça me va','Je m\'en fiche si le boulot me plaît']],
+ ['Ce qui compte le plus ?',['Gagner vite de l\'argent','Être utile aux autres','Être fier·e de ce que je fabrique','Être libre, mon propre patron'],{1:'p4',2:'p1',3:'p5'}],
+ ['Porter une tenue de travail ?',['Oui, ça me plaît','Pourquoi pas','Non merci']],
+ ['Après la 3e, tu te vois…',['En CAP','En bac pro','En apprentissage','Je ne sais pas encore']],
+ ['Tes stages, tu les veux…',['Près de chez moi','Là où il y a le métier qui me plaît','Je n\'ai pas d\'idée']]
+];
+const BILAN=[
+ ['C\'était difficile de répondre sur toi ?',['Facile','Moyen','Dur','Très dur']],
+ ['Le plus difficile, c\'était…',['Mes traits de personnalité','Mes aptitudes','Mes centres d\'intérêt','Mes envies','Rien de spécial']],
+ ['Ton profil t\'a…',['Surpris·e','Confirmé ce que je pensais','Un peu des deux']],
+ ['Tu as envie d\'aller plus loin sur ton pôle en tête ?',['Oui','Peut-être','Non, pas ce pôle']]
+];
+const ACCORD=['Oui, carrément','En partie','Pas du tout'];
+
+const S={prenom:'',pairs:{},traits:{},apts:{},ints:{},envies:{},accord:null,on:{},onTxt:{},bilan:{},retiens:'',metier:''};
+const KEY='profil3pm-34571';
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d)Object.assign(S,d);}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}update();}
+const $=id=>document.getElementById(id);
+function el(t,c,txt){const e=document.createElement(t);if(c)e.className=c;if(txt!=null)e.textContent=txt;return e;}
+function seg(container,opts,getter,setter,btnClass){
+  container.innerHTML='';
+  opts.forEach((o,i)=>{const b=el('button',btnClass||'',o);b.type='button';
+    if(getter()===i)b.classList.add('on');
+    b.onclick=()=>{setter(getter()===i?null:i);[...container.children].forEach((c,j)=>c.classList.toggle('on',getter()===j));save();};
+    container.appendChild(b);});
+}
+// 1
+PAIRS.forEach((p,i)=>{const r=el('div','pair');
+  const a=el('button','choice',p[0]);a.type='button';const o=el('span','ou','ou');const b=el('button','choice',p[2]);b.type='button';
+  const paint=()=>{a.classList.toggle('on',S.pairs[i]===0);b.classList.toggle('on',S.pairs[i]===1);};
+  a.onclick=()=>{S.pairs[i]=0;paint();save();};b.onclick=()=>{S.pairs[i]=1;paint();save();};
+  paint();r.append(a,o,b);$('pairs').appendChild(r);});
+// 2
+TRAITS.forEach((t,i)=>{const r=el('div','row');const l=el('div','lbl');l.append(el('b',null,t[0]),el('small',null,t[1]));
+  const s=el('div','seg');seg(s,['Pas moi','Un peu','Carrément moi'],()=>S.traits[i]??null,v=>{if(v==null)delete S.traits[i];else S.traits[i]=v;});
+  r.append(l,s);$('traits').appendChild(r);});
+// 3
+APTS.forEach((t,i)=>{const r=el('div','row');const l=el('div','lbl',t[0]);
+  const s=el('div','seg');seg(s,['Pas du tout','Un peu','Bien','Très bien'],()=>S.apts[i]??null,v=>{if(v==null)delete S.apts[i];else S.apts[i]=v;});
+  r.append(l,s);$('aptitudes').appendChild(r);});
+// 4
+INTS.forEach((t,i)=>{const c=el('button','chip',t[0]);c.type='button';c.classList.toggle('on',!!S.ints[i]);
+  c.onclick=()=>{if(S.ints[i])delete S.ints[i];else S.ints[i]=1;c.classList.toggle('on',!!S.ints[i]);save();};$('interets').appendChild(c);});
+// 5
+ENVIES.forEach((q,i)=>{const w=el('div','q');w.appendChild(el('h3',null,q[0]));const s=el('div','seg opts');s.style.justifyContent='flex-start';
+  seg(s,q[1],()=>S.envies[i]??null,v=>{if(v==null)delete S.envies[i];else S.envies[i]=v;});w.appendChild(s);$('envies').appendChild(w);});
+// 6
+seg($('accord'),ACCORD,()=>S.accord,v=>S.accord=v);
+// 7
+POLES.forEach((p,i)=>{const tr=el('tr');const td=el('td');const d=el('span','dot');d.style.background=`var(--${p.id})`;td.append(d,document.createTextNode(p.name));tr.appendChild(td);
+  ['c','a','n'].forEach(k=>{const c=el('td');const inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=100;inp.id=`on_${p.id}_${k}`;inp.setAttribute('aria-label',`${p.name}, ${k==='c'?'conseillés':k==='a'?'assez pertinents':'peu pertinents'}`);
+    inp.value=S.on[inp.id]??'';inp.oninput=()=>{S.on[inp.id]=inp.value;save();};c.appendChild(inp);tr.appendChild(c);});
+  $('onisepTbl').appendChild(tr);});
+['on_traits','on_apt','on_int','on_env'].forEach(id=>{$(id).value=S.onTxt[id]||'';$(id).oninput=e=>{S.onTxt[id]=e.target.value;save();};});
+// 8
+BILAN.forEach((q,i)=>{const w=el('div','q');w.appendChild(el('h3',null,q[0]));const s=el('div','seg opts');s.style.justifyContent='flex-start';
+  seg(s,q[1],()=>S.bilan[i]??null,v=>{if(v==null)delete S.bilan[i];else S.bilan[i]=v;});w.appendChild(s);$('bilan').appendChild(w);});
+[['prenom','prenom'],['retiens','retiens'],['metier','metier']].forEach(([id,k])=>{$(id).value=S[k]||'';$(id).oninput=e=>{S[k]=e.target.value;save();};});
+
+function scores(){const sc={};POLES.forEach(p=>sc[p.id]=0);
+  PAIRS.forEach((p,i)=>{if(S.pairs[i]===0)sc[p[1]]+=2;else if(S.pairs[i]===1)sc[p[3]]+=2;});
+  TRAITS.forEach((t,i)=>{const v=S.traits[i];if(v!=null)for(const k in t[2])sc[k]+=t[2][k]*v;});
+  APTS.forEach((t,i)=>{const v=S.apts[i];if(v!=null)for(const k in t[1])sc[k]+=t[1][k]*v;});
+  INTS.forEach((t,i)=>{if(S.ints[i])sc[t[1]]+=3;});
+  ENVIES.forEach((q,i)=>{const v=S.envies[i];if(v!=null&&q[2]&&q[2][v])sc[q[2][v]]+=2;});
+  const tot=Object.values(sc).reduce((a,b)=>a+b,0);
+  return POLES.map(p=>({...p,raw:sc[p.id],pct:tot?Math.round(sc[p.id]*100/tot):0})).sort((a,b)=>b.raw-a.raw);}
+function answered(){return Object.keys(S.pairs).length+Object.keys(S.traits).length+Object.keys(S.apts).length+(Object.keys(S.ints).length?1:0)+Object.keys(S.envies).length+(S.accord!=null?1:0)+Object.keys(S.bilan).length;}
+const TOTAL=PAIRS.length+TRAITS.length+APTS.length+1+ENVIES.length+1+BILAN.length;
+
+function update(){
+  const n=answered();$('barFill').style.width=Math.min(100,n*100/TOTAL)+'%';$('barTxt').textContent=`${n} / ${TOTAL}`;
+  const ni=Object.keys(S.ints).length;$('intCount').textContent=`${ni} activité${ni>1?'s':''} choisie${ni>1?'s':''}`+(ni<4?' (encore '+(4-ni)+' minimum)':'');
+  const sc=scores();const has=sc.some(s=>s.raw>0);
+  const bars=$('bars');bars.innerHTML='';
+  sc.forEach(s=>{const d=el('div','pb');const nm=el('span','name',s.name);const tr=el('div','track');const f=el('div','fill');f.style.width=s.pct+'%';f.style.background=`var(--${s.id})`;tr.appendChild(f);
+    d.append(nm,tr,el('span','pct',s.pct+' %'));bars.appendChild(d);});
+  const v=$('verdict');v.innerHTML='';
+  if(!has){v.appendChild(el('p','empty','Réponds aux étapes précédentes pour voir apparaître ton profil.'));}
+  else{const a=sc[0],b=sc[1];const p1=el('p');p1.innerHTML=`Ton pôle en tête : <b>${a.name}</b>. Tu as l'air d'aimer <b>${a.short}</b>.`;
+    const p2=el('p');p2.innerHTML=`Juste derrière : <b>${b.name}</b>.`;
+    const p3=el('p');p3.style.marginTop='8px';p3.innerHTML=`Secteurs à explorer : ${a.ex}.`;
+    v.append(p1,p2,p3);if(n<TOTAL/2)v.appendChild(el('p','empty','Profil provisoire : réponds à plus de questions pour qu\'il soit fiable.'));}
+  // compare
+  const cmp=$('compare');cmp.innerHTML='';
+  const onv=POLES.map(p=>({...p,v:parseFloat(S.on[`on_${p.id}_c`])})).filter(p=>!isNaN(p.v));
+  if(!onv.length||!has){cmp.appendChild(el('p','empty','Remplis la colonne « % conseillés » pour comparer avec ton profil maison.'));}
+  else{onv.sort((x,y)=>y.v-x.v);const top=onv[0];const same=top.id===sc[0].id;const near=top.id===sc[1].id;
+    const p=el('p');p.innerHTML=`Onisep met en tête : <b>${top.name}</b> (${top.v} %).<br>`+(same?'C\'est le même pôle que ton profil maison. Deux outils différents disent la même chose : c\'est une vraie piste.':near?'C\'est ton 2e pôle dans le profil maison. Les deux résultats sont proches.':'C\'est différent de ton profil maison. Normal : les questions ne sont pas les mêmes. Garde les deux pistes en tête.');
+    cmp.appendChild(p);}
+  // recap
+  const L=[];L.push(`Mon profil 3e prépa-métiers – ${S.prenom||'(prénom)'}`,'');
+  L.push('Profil maison :');sc.forEach(s=>L.push(`- ${s.name} : ${s.pct} %`));
+  if(S.accord!=null)L.push(`Ce profil me ressemble : ${ACCORD[S.accord]}`);
+  const tr=TRAITS.filter((t,i)=>S.traits[i]===2).map(t=>t[0]);if(tr.length)L.push('','Traits qui me ressemblent carrément : '+tr.join(', '));
+  const ap=APTS.filter((t,i)=>S.apts[i]>=2).map(t=>t[0]);if(ap.length)L.push('Ce que je sais bien faire : '+ap.join(' ; '));
+  const it=INTS.filter((t,i)=>S.ints[i]).map(t=>t[0]);if(it.length)L.push('Ce qui m\'intéresse : '+it.join(', '));
+  const en=ENVIES.filter((q,i)=>S.envies[i]!=null).map((q,i)=>`${q[0]} ${q[1][S.envies[ENVIES.indexOf(q)]]}`);if(en.length){L.push('','Mes envies :');en.forEach(e=>L.push('- '+e));}
+  if(onv.length){L.push('','Quiz Onisep (% conseillés) :');POLES.forEach(p=>{const c=S.on[`on_${p.id}_c`],a=S.on[`on_${p.id}_a`],nn=S.on[`on_${p.id}_n`];if(c||a||nn)L.push(`- ${p.name} : ${c||'?'} / ${a||'?'} / ${nn||'?'}`);});}
+  const lab={on_traits:'Traits',on_apt:'Aptitudes',on_int:'Centres d\'intérêt',on_env:'Envies'};
+  for(const k in lab)if(S.onTxt[k])L.push(`${lab[k]} (Onisep) : ${S.onTxt[k]}`);
+  const bl=BILAN.filter((q,i)=>S.bilan[i]!=null);if(bl.length){L.push('','Bilan :');BILAN.forEach((q,i)=>{if(S.bilan[i]!=null)L.push(`- ${q[0]} ${q[1][S.bilan[i]]}`);});}
+  if(S.retiens)L.push('','Ce que je retiens : '+S.retiens);
+  if(S.metier)L.push('Métier ou secteur à explorer : '+S.metier);
+  $('recap').textContent=L.join('\n');
+}
+$('copyBtn').onclick=()=>{const t=$('recap').textContent;const ok=()=>{$('toast').textContent='Copié. Colle-le dans ton message.';setTimeout(()=>$('toast').textContent='',3000);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(ok).catch(sel);}else sel();
+  function sel(){const r=document.createRange();r.selectNodeContents($('recap'));const s=getSelection();s.removeAllRanges();s.addRange(r);$('toast').textContent='Texte sélectionné : fais Ctrl + C.';}};
+let armed=false;
+$('resetBtn').onclick=()=>{if(!armed){armed=true;$('resetBtn').textContent='Sûr ? Clique encore';setTimeout(()=>{armed=false;$('resetBtn').textContent='Tout effacer';},4000);return;}
+  try{localStorage.removeItem(KEY);}catch(e){}location.reload();};
+update();
+</script>
+</body>
+</html>
